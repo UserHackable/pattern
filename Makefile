@@ -29,7 +29,7 @@ current_dir := $(notdir $(patsubst %/,%,$(dir $(mkfile_path))))
 schematics := $(wildcard *.sch)
 boards := $(wildcard *.brd)
 drawings := $(wildcard *.dxf)
-zips := $(patsubst %.brd,%_gerber.zip,$(boards))
+gerbers := $(patsubst %.brd,%_gerber.zip,$(boards))
 pngs := $(patsubst %.brd,%.png,$(boards)) $(patsubst %.dxf,%.png,$(drawings))
 dris := $(patsubst %.brd,%.dri,$(boards))
 gpis := $(patsubst %.brd,%.gpi,$(boards))
@@ -48,11 +48,11 @@ mds := $(patsubst %.brd,%.md,$(boards))
 
 GERBER_DIR=gerbers
 
-.PHONY: zips pngs clean clean_gerbers clean_temps clean_pngs clean_zips clean_mds all
+.PHONY: gerbers pngs clean clean_gerbers clean_temps clean_pngs clean_zips clean_mds all
 
-all: zips push
+all: gerbers push
 
-zips: $(zips)
+gerbers: $(gerbers)
 
 pngs: $(pngs) $(back_pngs)
 
