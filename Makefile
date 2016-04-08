@@ -126,12 +126,12 @@ README.md: Intro.md $(mds)
 	git add . --all
 	git commit -am 'first commit'
 
-.github: .git
+.github: | .git
 	curl -H "Authorization: token $(github_token)" -o .github https://api.github.com/orgs/$(github_org)/repos -d "{\"name\": \"$(current_dir)\", \"description\": \"$(current_dir)\", \"private\": false, \"has_issues\": true, \"has_downloads\": true, \"has_wiki\": false}"
 	git remote add origin git@github.com:$(github_org)/$(current_dir).git
 	git push -u origin master
 
-push: .git .github .gitignore $(boards) $(schematics) $(drawings) README.md 
+push: .github .gitignore $(boards) $(schematics) $(drawings) README.md 
 	git add . --all
 	git commit -am 'from Makefile'
 	git push
