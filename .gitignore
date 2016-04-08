@@ -6,6 +6,7 @@
 .*.swp
 .*.lck
 .github.repo
+.github
 
 *.GBL
 *.GBO

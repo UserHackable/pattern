@@ -26,6 +26,7 @@ current_dir := $(notdir $(patsubst %/,%,$(dir $(mkfile_path))))
 # # On Mac OSX we will create a link to the Eagle binary:
 # # sudo ln -s /Applications/EAGLE/EAGLE.app/Contents/MacOS/EAGLE /usr/bin/eagle 
 
+schematics := $(wildcard *.sch)
 boards := $(wildcard *.brd)
 drawings := $(wildcard *.dxf)
 zips := $(patsubst %.brd,%_gerber.zip,$(boards))
@@ -43,19 +44,17 @@ mds := $(patsubst %.brd,%.md,$(boards))
 
 .INTERMEDIATE: $(dris) $(gpis)
 
-.IGNORE: git
+.IGNORE: push
 
 GERBER_DIR=gerbers
 
-.PHONY: zips pngs md clean clean_gerbers clean_temps clean_pngs clean_zips clean_mds all
+.PHONY: zips pngs clean clean_gerbers clean_temps clean_pngs clean_zips clean_mds all
 
-all: md zips git
+all: zips push
 
 zips: $(zips)
 
 pngs: $(pngs) $(back_pngs)
-
-md: $(mds) README.md
 
 README.md: Intro.md $(mds)
 	cat $+ > README.md 
@@ -120,19 +119,19 @@ README.md: Intro.md $(mds)
 	echo "\n\n| Front | Back |\n| --- | --- |\n| ![Front]($*.png) | ![Back]($*_back.png) |\n\n" >>  $@
 
 .gitignore:
-	echo "\n*~\n.*.swp\n*.?#?\n.*.lck\n.github.repo" >> $@
+	echo "\n*~\n.*.swp\n*.?#?\n.*.lck\n.github" >> $@
 
 .git:
 	git init
 	git add . --all
 	git commit -am 'first commit'
 
-github: .git
-	curl -H "Authorization: token $(github_token)" -o .github.repo https://api.github.com/orgs/$(github_org)/repos -d "{\"name\": \"$(current_dir)\", \"description\": \"$(current_dir)\", \"private\": false, \"has_issues\": true, \"has_downloads\": true, \"has_wiki\": false}"
+.github: .git
+	curl -H "Authorization: token $(github_token)" -o .github https://api.github.com/orgs/$(github_org)/repos -d "{\"name\": \"$(current_dir)\", \"description\": \"$(current_dir)\", \"private\": false, \"has_issues\": true, \"has_downloads\": true, \"has_wiki\": false}"
 	git remote add origin git@github.com:$(github_org)/$(current_dir).git
 	git push -u origin master
 
-git: .git .gitignore
+push: .git .github .gitignore $(boards) $(schematics) $(drawings) README.md 
 	git add . --all
 	git commit -am 'from Makefile'
 	git push
